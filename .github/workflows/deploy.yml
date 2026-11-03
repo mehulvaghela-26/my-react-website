@@ -25,29 +25,44 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      # 1. Get repository code
       - name: Checkout
         uses: actions/checkout@v6
 
+      # 2. Setup Node
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      # 4. ESLint
+      - name: Run ESLint
+        run: npm run lint
+
+      # 5. Prettier
+      - name: Check Prettier formatting
+        run: npm run format:check
+
+      # 6. Build only if lint + prettier pass
+      - name: Build React application
         run: npm run build
 
+      # 7. Configure GitHub Pages
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      # 8. Upload build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
+      # 9. Deploy
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
